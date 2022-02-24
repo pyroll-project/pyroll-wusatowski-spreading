@@ -27,10 +27,11 @@ def wusatowski_friction_coefficient(roll_pass):
 
 @RollPass.hookimpl
 def wusatowski_exponent(roll_pass):
-    equivalent_height = lib.equivalent_height(roll_pass.in_profile)
-    equivalent_width = lib.equivalent_width(roll_pass.out_profile)
+    in_equivalent_height = lib.equivalent_height(roll_pass.in_profile)
+    in_equivalent_width = lib.equivalent_width(roll_pass.in_profile)
     return 10 ** (
-            -1.269 * (equivalent_height / 2 / roll_pass.roll_radius) ** 0.56 * equivalent_width / equivalent_height
+            -1.269 * (in_equivalent_height / 2 / roll_pass.roll_radius) ** 0.56
+            * in_equivalent_width / in_equivalent_height
     )
 
 
@@ -44,11 +45,15 @@ def width_change(roll_pass):
             * wusatowski_friction_coefficient
             * compression ** (-wusatowski_exponent)
     )
+    out_equivalent_height = lib.equivalent_height(roll_pass.out_profile)
 
-    out_equivalent_width = spread * lib.equivalent_width(roll_pass)
-    out_profile_width = out_equivalent_width ** 2 * roll_pass.out_profile.height / roll_pass.out_profile.cross_section
+    in_equivalent_width = lib.equivalent_width(roll_pass.in_profile)
+    out_equivalent_width = spread * in_equivalent_width
 
-    return out_profile_width - roll_pass.in_profile.rotated.width
+    out_profile_width = out_equivalent_width * roll_pass.out_profile.height / out_equivalent_height
+    width_change = out_profile_width - roll_pass.in_profile.rotated.width
+
+    return width_change
 
 
 RollPass.plugin_manager.register(sys.modules[__name__])
