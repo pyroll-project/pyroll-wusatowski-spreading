@@ -1,33 +1,25 @@
+import logging
 from pathlib import Path
-from click.testing import CliRunner
 
-import pytest
-
-THIS_DIR = Path(__file__).parent
-INPUT = (THIS_DIR.parent / "pyroll-core" / "pyroll" / "ui" / "cli" / "res" / "input_trio.py").read_text()
-CONFIG = (THIS_DIR / "config.yaml").read_text()
+import pyroll
 
 
-def test_solve(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
-    from pyroll.ui.cli.program import main
+def test_solve(tmp_path: Path, caplog):
+    caplog.set_level(logging.ERROR, "matplotlib")
+    caplog.set_level(logging.DEBUG)
 
-    (tmp_path / "input.py").write_text(INPUT)
-    (tmp_path / "config.yaml").write_text(CONFIG)
+    import pyroll_wusatowski_spreading
 
-    monkeypatch.chdir(tmp_path)
-    runner = CliRunner()
-    result = runner.invoke(
-        main,
-        [
-            "input-py",
-            "solve",
-            "report",
-        ],
+    from pyroll.ui.cli.res import input_trio
 
-    )
+    pyroll.solve(input_trio.sequence, input_trio.in_profile)
 
-    print("\n")
-    print(result.stdout)
-    print(result.exception)
+    report = pyroll.Reporter().render(input_trio.sequence)
 
-    assert result.exit_code == 0
+    report_file = tmp_path / "report.html"
+    report_file.write_text(report)
+    print()
+    print(report_file)
+
+    print()
+    print(caplog.text)
