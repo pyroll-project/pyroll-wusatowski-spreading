@@ -8,12 +8,12 @@
 \begin{document}
 
     \title{The Wusatowski Spreading PyRoll Plugin}
-    \author{Max Weiner}
+    \author{Max Weiner, Christoph Renzing}
     \date{\today}
 
     \maketitle
 
-    This plugin provides a spreading modelling approach with Wusatowski's formula for flat rolling, adapted on groove rolling by an equivalent rectangle approach.
+    This plugin provides a spreading modelling approach with Wusatowski's formula for flat rolling.
 
 
     \section{Model approach}\label{sec:model-approach}
@@ -37,59 +37,22 @@
         \label{eq:velocity-coefficient}
     \end{equation}
 
-    $w$ is the spread exponent, many different expressions were given by various authors for its value.
-    The original expression by \textcite{Wusatowski1969} is given in \autoref{eq:exponent}, where $R$ is the roll radius.
+    $w$ is the spread exponent.
+    As for strains $\epsilon$ smaller than 50\%, \textcite{Wusatowski1969} proposed ~\autoref{eq:exponent_low}.
+    For strains higher than 50\% \textcite{Wusatowski1969} used a adjusted version of the exponent $w_{high}$.
+    The origin of this equation was first given by \textcite{Hill1955} which derived the equation from plastic stress-strain equations from \textcite{Mises1913}.
+    In the following expressions, $R$ is the roll radius.
 
-    \begin{equation}
-        w = 10^{ \num{-1.269} \left( \frac{h_0}{2 R} \right)^{\num{0.56}} \frac{b_0}{h_0} }
-        \label{eq:exponent}
-    \end{equation}
-
-    \subsection{Equivalent rectangle approach}\label{subsec:equivalent-rectangle-approach}
-
-    Wusatowskis spreading model~\cite{Wusatowski1969} was originally built for flat rolling.
-    A common approach for groove rolling is to calculate some equivalent rectangular profile to be able to use flat rolling models~\cite{Hensel1978, Spittel1984}.
-    \autoref{fig:equivalent_rectangle} shows 3 variants of calculating an equivalent rectangle of a profile.
-
-    \begin{figure}
-        \centering
-        \includegraphics[width=\linewidth]{equivalent_rectangle}
-        \caption{Three methods of defining an equivalent rectangle of an oval groove}
-        \label{fig:equivalent_rectangle}
-    \end{figure}
-
-    The first variant is to keep the width constant and calculate the height $h'$ so that the cross section $A$ is
-    equal:
-
-    \[
-        h' = \frac{A}{b}
-    \]
-
-    The second variant is to keep the height constant and calculate the width $b'$ so that the cross section $A$ is
-    equal:
-
-    \[
-        b' = \frac{A}{h}
-    \]
-
-    Both represent the geometry of the profile poorly.
-    A better way is to keep the aspect ratio equal as propose by \textcite{Spittel1984}:
-
-    \[
-        h'' = \sqrt{\frac{A h}{b}}
-    \]
-
-    \[
-        b'' = \sqrt{\frac{A b}{h}}
-    \]
-
-    This variant is used in the current implementation.
-    So $h$ and $b$ in Wusatowski's model are replaced with $h''$ and $b''$.
-    In the end, $b_1$ can be obtained from $b_1''$ by:
-
-    \[
-        b_1 = \frac{b_1'' h_1}{h_1''}
-    \]
+    \begin{subequations}
+        \begin{equation}
+            w_{low} = 10^{ \num{-1.269} \left( \frac{h_0}{2 R} \right)^{\num{0.556}} \frac{b_0}{h_0} }
+            \label{eq:exponent_low}\\
+        \end{equation}
+        \begin{equation}
+            w_{high} = 10^{ \num{-3.457} \left( \frac{h_0}{2 R} \right)^{\num{0.958}} \frac{b_0}{h_0} }
+            \label{eq:exponent_high}\\
+        \end{equation}
+    \end{subequations}
 
 
     \section{Usage instructions}\label{sec:usage-instructions}
@@ -101,7 +64,8 @@
 
     Several additional hooks on \lstinline{RollPass} are defined, which are used in spread calculation, as listed in \autoref{tab:hookspecs}.
     Base implementations of them are provided, so it should work out of the box.
-    For \lstinline{wusatowski_exponent} and \lstinline{wusatowski_velocity_coefficient} the equations~\ref{eq:exponent} and~\ref{eq:velocity-coefficient} are implemented.
+    For \lstinline{wusatowski_exponent_low}, \lstinline{wusatowski_exponent_high} and \lstinline{wusatowski_velocity_coefficient}
+    the equations~\ref{eq:exponent_low},~\ref{eq:exponent_high} and~\ref{eq:velocity-coefficient} are implemented.
     The others default to \num{1}.
     Provide your own hook implementations or set attributes on the \lstinline{RollPass} instances to alter the spreading behavior.
 
@@ -117,7 +81,8 @@
             \texttt{wusatowski\_velocity\_coefficient}    & velocity correction coefficient $c$    \\
             \texttt{wusatowski\_material\_coefficient}    & material correction coefficient $d$    \\
             \texttt{wusatowski\_friction\_coefficient}    & friction correction coefficient $f$    \\
-            \texttt{wusatowski\_exponent}                 & spread exponent $w$                    \\
+            \texttt{wusatowski\_exponent\_low}            & spread exponent $w_{low}$              \\
+            \texttt{wusatowski\_exponent\_high}           & spread exponent $w_{high}$             \\
             \bottomrule
         \end{tabular}
     \end{table}

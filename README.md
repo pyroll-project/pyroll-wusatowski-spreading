@@ -1,6 +1,6 @@
 # PyRoll Wusatowski Spreading
 
-Plugin for PyRoll providing the Wusatowski spreading model.
+Plugin for PyRoll providing the Wusatowski spreading model for high and low strains.
 
 For the docs, see [here](docs/docs.pdf).
 

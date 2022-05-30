@@ -1,5 +1,3 @@
-import sys
-
 from pyroll.core import RollPass
 
 
@@ -27,5 +25,3 @@ def wusatowski_friction_coefficient(roll_pass):
 def wusatowski_exponent(roll_pass):
     """Gets the Wusatowski spreading model exponent w."""
 
-
-RollPass.plugin_manager.add_hookspecs(sys.modules[__name__])
