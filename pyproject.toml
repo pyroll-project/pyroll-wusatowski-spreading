@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pyroll-wusatowski-spreading"
-version = "1.1.0"
+version = "2.0.0a"
 description = "Plugin for PyRoll providing the Wusatowski spreading model for high and low strains."
 authors = [
     "Max Weiner <max.weiner@imf.tu-freiberg.de>",
