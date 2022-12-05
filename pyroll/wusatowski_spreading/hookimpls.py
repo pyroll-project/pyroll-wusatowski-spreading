@@ -1,30 +1,29 @@
-import logging
 from pyroll.core import RollPass
 
 
-@RollPass.hookimpl
+@RollPass.wusatowski_temperature_coefficient
 def wusatowski_temperature_coefficient(roll_pass: RollPass):
     return 1
 
 
-@RollPass.hookimpl
+@RollPass.wusatowski_velocity_coefficient
 def wusatowski_velocity_coefficient(roll_pass):
     compression = (roll_pass.out_profile.equivalent_rectangle.height
                    / roll_pass.in_profile.equivalent_rectangle.height)
     return (-0.002958 + 0.00341 * compression) * roll_pass.velocity + 1.07168 - 0.10431 * compression
 
 
-@RollPass.hookimpl
+@RollPass.wusatowski_material_coefficient
 def wusatowski_material_coefficient(roll_pass: RollPass):
     return 1
 
 
-@RollPass.hookimpl
+@RollPass.wusatowski_friction_coefficient
 def wusatowski_friction_coefficient(roll_pass: RollPass):
     return 1
 
 
-@RollPass.hookimpl(specname="wusatowski_exponent")
+@RollPass.wusatowski_exponent
 def wusatowski_exponent_low_strain(roll_pass: RollPass):
     compression = (roll_pass.out_profile.equivalent_rectangle.height
                    / roll_pass.in_profile.equivalent_rectangle.height)
@@ -39,7 +38,7 @@ def wusatowski_exponent_low_strain(roll_pass: RollPass):
         )
 
 
-@RollPass.hookimpl(specname="wusatowski_exponent")
+@RollPass.wusatowski_exponent
 def wusatowski_exponent_high_strain(roll_pass: RollPass):
     compression = (roll_pass.out_profile.equivalent_rectangle.height
                    / roll_pass.in_profile.equivalent_rectangle.height)
@@ -54,7 +53,7 @@ def wusatowski_exponent_high_strain(roll_pass: RollPass):
         )
 
 
-@RollPass.hookimpl
+@RollPass.spread
 def spread(roll_pass: RollPass):
     compression = (roll_pass.out_profile.equivalent_rectangle.height
                    / roll_pass.in_profile.equivalent_rectangle.height)

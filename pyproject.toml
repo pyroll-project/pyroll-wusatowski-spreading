@@ -23,8 +23,8 @@ classifiers = [
 
 
 [tool.poetry.dependencies]
-python = ">=3.9, <3.11"
-pyroll = "^1.0.0"
+python = ">=3.9, <4.0"
+pyroll = "^2.0.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.0.0"

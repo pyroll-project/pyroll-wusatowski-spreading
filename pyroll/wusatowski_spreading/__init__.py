@@ -1,7 +1,10 @@
 from pyroll.core import RollPass
+from pyroll.core.hooks import Hook
 
-from . import hookspecs
+RollPass.wusatowski_temperature_coefficient = Hook[float]()
+RollPass.wusatowski_velocity_coefficient = Hook[float]()
+RollPass.wusatowski_material_coefficient = Hook[float]()
+RollPass.wusatowski_friction_coefficient = Hook[float]()
+RollPass.wusatowski_exponent = Hook[float]()
+
 from . import hookimpls
-
-RollPass.plugin_manager.add_hookspecs(hookspecs)
-RollPass.plugin_manager.register(hookimpls)
