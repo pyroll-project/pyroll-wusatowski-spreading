@@ -24,7 +24,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = ">=3.9, <4.0"
-pyroll = "^2.0.0"
+pyroll = "^2.0.0a"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.0.0"

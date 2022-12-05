@@ -2,65 +2,57 @@ from pyroll.core import RollPass
 
 
 @RollPass.wusatowski_temperature_coefficient
-def wusatowski_temperature_coefficient(roll_pass: RollPass):
+def wusatowski_temperature_coefficient(self: RollPass):
     return 1
 
 
 @RollPass.wusatowski_velocity_coefficient
-def wusatowski_velocity_coefficient(roll_pass):
-    compression = (roll_pass.out_profile.equivalent_rectangle.height
-                   / roll_pass.in_profile.equivalent_rectangle.height)
-    return (-0.002958 + 0.00341 * compression) * roll_pass.velocity + 1.07168 - 0.10431 * compression
+def wusatowski_velocity_coefficient(self: RollPass):
+    compression = (self.out_profile.equivalent_rectangle.height
+                   / self.in_profile.equivalent_rectangle.height)
+    return (-0.002958 + 0.00341 * compression) * self.velocity + 1.07168 - 0.10431 * compression
 
 
 @RollPass.wusatowski_material_coefficient
-def wusatowski_material_coefficient(roll_pass: RollPass):
+def wusatowski_material_coefficient(self: RollPass):
     return 1
 
 
 @RollPass.wusatowski_friction_coefficient
-def wusatowski_friction_coefficient(roll_pass: RollPass):
+def wusatowski_friction_coefficient(self: RollPass):
     return 1
 
 
 @RollPass.wusatowski_exponent
-def wusatowski_exponent_low_strain(roll_pass: RollPass):
-    compression = (roll_pass.out_profile.equivalent_rectangle.height
-                   / roll_pass.in_profile.equivalent_rectangle.height)
-
-    if compression >= 0.5:
-        in_equivalent_height = roll_pass.in_profile.equivalent_rectangle.height
-        in_equivalent_width = roll_pass.in_profile.equivalent_rectangle.width
+def wusatowski_exponent_low_strain(self: RollPass):
+    if self.draught >= 0.5:
+        in_equivalent_height = self.in_profile.equivalent_rectangle.height
+        in_equivalent_width = self.in_profile.equivalent_rectangle.width
 
         return 10 ** (
-                -1.269 * (in_equivalent_height / (2 * roll_pass.roll.working_radius)) ** 0.556
+                -1.269 * (in_equivalent_height / (2 * self.roll.working_radius)) ** 0.556
                 * in_equivalent_width / in_equivalent_height
         )
 
 
 @RollPass.wusatowski_exponent
-def wusatowski_exponent_high_strain(roll_pass: RollPass):
-    compression = (roll_pass.out_profile.equivalent_rectangle.height
-                   / roll_pass.in_profile.equivalent_rectangle.height)
-
-    if compression < 0.5:
-        in_equivalent_height = roll_pass.in_profile.equivalent_rectangle.height
-        in_equivalent_width = roll_pass.in_profile.equivalent_rectangle.width
+def wusatowski_exponent_high_strain(self: RollPass):
+    if self.draught < 0.5:
+        in_equivalent_height = self.in_profile.equivalent_rectangle.height
+        in_equivalent_width = self.in_profile.equivalent_rectangle.width
 
         return 10 ** (
-                -3.457 * (in_equivalent_height / (2 * roll_pass.roll.working_radius)) ** 0.968
+                -3.457 * (in_equivalent_height / (2 * self.roll.working_radius)) ** 0.968
                 * in_equivalent_width / in_equivalent_height
         )
 
 
 @RollPass.spread
-def spread(roll_pass: RollPass):
-    compression = (roll_pass.out_profile.equivalent_rectangle.height
-                   / roll_pass.in_profile.equivalent_rectangle.height)
+def spread(self: RollPass):
     return (
-            roll_pass.wusatowski_temperature_coefficient
-            * roll_pass.wusatowski_velocity_coefficient
-            * roll_pass.wusatowski_material_coefficient
-            * roll_pass.wusatowski_friction_coefficient
-            * compression ** (-roll_pass.wusatowski_exponent)
+            self.wusatowski_temperature_coefficient
+            * self.wusatowski_velocity_coefficient
+            * self.wusatowski_material_coefficient
+            * self.wusatowski_friction_coefficient
+            * self.draught ** (-self.wusatowski_exponent)
     )
