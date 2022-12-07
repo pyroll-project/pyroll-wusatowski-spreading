@@ -15,9 +15,7 @@ def wusatowski_temperature_coefficient(self: RollPass):
 
 @RollPass.wusatowski_velocity_coefficient
 def wusatowski_velocity_coefficient(self: RollPass):
-    compression = (self.out_profile.equivalent_rectangle.height
-                   / self.in_profile.equivalent_rectangle.height)
-    return (-0.002958 + 0.00341 * compression) * self.velocity + 1.07168 - 0.10431 * compression
+    return (-0.002958 + 0.00341 * self.draught) * self.velocity + 1.07168 - 0.10431 * self.draught
 
 
 @RollPass.wusatowski_material_coefficient
