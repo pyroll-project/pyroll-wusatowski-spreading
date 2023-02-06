@@ -1,6 +1,8 @@
 from pyroll.core import RollPass
 from pyroll.core.hooks import Hook
 
+VERSION = "2.0.0b1"
+
 RollPass.wusatowski_temperature_coefficient = Hook[float]()
 """Temperature correction factor a for Wusatowski's spread equation."""
 
