@@ -1,7 +1,10 @@
+import importlib.util
+
 from pyroll.core import RollPass
 from pyroll.core.hooks import Hook
 
 VERSION = "2.0.0b1"
+PILLAR_MODEL_INSTALLED = bool(importlib.util.find_spec("pyroll.pillar_model"))
 
 RollPass.wusatowski_temperature_coefficient = Hook[float]()
 """Temperature correction factor a for Wusatowski's spread equation."""
@@ -66,20 +69,38 @@ def wusatowski_exponent_high_strain(self: RollPass):
 # noinspection PyUnresolvedReferences
 @RollPass.spread
 def spread(self: RollPass):
-    return (
-            self.wusatowski_temperature_coefficient
-            * self.wusatowski_velocity_coefficient
-            * self.wusatowski_material_coefficient
-            * self.wusatowski_friction_coefficient
-            * self.draught ** (-self.wusatowski_exponent)
-    )
+    if not (PILLAR_MODEL_INSTALLED and self.disk_elements):
+        return (
+                self.wusatowski_temperature_coefficient
+                * self.wusatowski_velocity_coefficient
+                * self.wusatowski_material_coefficient
+                * self.wusatowski_friction_coefficient
+                * self.draught ** (-self.wusatowski_exponent)
+        )
 
 
 @RollPass.OutProfile.width
 def width(self: RollPass.OutProfile):
     rp = self.roll_pass
 
-    if not self.has_set_or_cached("width"):
-        self.width = rp.roll.groove.usable_width
+    if not (PILLAR_MODEL_INSTALLED and rp.disk_elements):
+        if not self.has_set_or_cached("width"):
+            self.width = rp.roll.groove.usable_width
 
-    return rp.spread * rp.in_profile.width
+        return rp.spread * rp.in_profile.width
+
+
+if PILLAR_MODEL_INSTALLED:
+    import pyroll.pillar_model
+
+    # noinspection PyUnresolvedReferences
+    @RollPass.DiskElement.pillar_spreads
+    def pillar_spreads(self: RollPass.DiskElement):
+        rp = self.roll_pass
+        return (
+                rp.wusatowski_temperature_coefficient
+                # * rp.wusatowski_velocity_coefficient
+                * rp.wusatowski_material_coefficient
+                * rp.wusatowski_friction_coefficient
+                * self.pillar_draughts ** (-rp.wusatowski_exponent)
+        )
