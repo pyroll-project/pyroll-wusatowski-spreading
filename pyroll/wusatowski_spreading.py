@@ -64,6 +64,17 @@ def wusatowski_exponent_high_strain(self: RollPass):
 
 
 # noinspection PyUnresolvedReferences
+@RollPass.spread
+def spread(self: RollPass):
+    return (
+            self.wusatowski_temperature_coefficient
+            * self.wusatowski_velocity_coefficient
+            * self.wusatowski_material_coefficient
+            * self.wusatowski_friction_coefficient
+            * self.draught ** (-self.wusatowski_exponent)
+    )
+
+
 @RollPass.OutProfile.width
 def width(self: RollPass.OutProfile):
     rp = self.roll_pass
@@ -71,12 +82,4 @@ def width(self: RollPass.OutProfile):
     if not self.has_set_or_cached("width"):
         self.width = rp.roll.groove.usable_width
 
-    return (
-            rp.wusatowski_temperature_coefficient
-            * rp.wusatowski_velocity_coefficient
-            * rp.wusatowski_material_coefficient
-            * rp.wusatowski_friction_coefficient
-            * rp.draught ** (-rp.wusatowski_exponent)
-    ) * rp.in_profile.width
-
-# RollPass.root_hooks.add(RollPass.OutProfile.width)
+    return rp.spread * rp.in_profile.width
