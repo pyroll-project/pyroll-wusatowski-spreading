@@ -2,10 +2,19 @@ from pyroll.core import RollPass
 from pyroll.core.hooks import Hook
 
 RollPass.wusatowski_temperature_coefficient = Hook[float]()
+"""Temperature correction factor a for Wusatowski's spread equation."""
+
 RollPass.wusatowski_velocity_coefficient = Hook[float]()
+"""Velocity correction factor c for Wusatowski's spread equation."""
+
 RollPass.wusatowski_material_coefficient = Hook[float]()
+"""Material correction factor d for Wusatowski's spread equation."""
+
 RollPass.wusatowski_friction_coefficient = Hook[float]()
+"""Friction correction factor f for Wusatowski's spread equation."""
+
 RollPass.wusatowski_exponent = Hook[float]()
+"""Exponent w for Wusatowski's spread equation."""
 
 
 @RollPass.wusatowski_temperature_coefficient
@@ -55,7 +64,7 @@ def wusatowski_exponent_high_strain(self: RollPass):
 # noinspection PyUnresolvedReferences
 @RollPass.OutProfile.width
 def width(self: RollPass.OutProfile):
-    rp = self.roll_pass()
+    rp = self.roll_pass
 
     if not self.has_set_or_cached("width"):
         self.width = rp.roll.groove.usable_width
@@ -68,5 +77,4 @@ def width(self: RollPass.OutProfile):
             * rp.draught ** (-rp.wusatowski_exponent)
     ) * rp.in_profile.width
 
-
-RollPass.root_hooks.add(RollPass.OutProfile.width)
+# RollPass.root_hooks.add(RollPass.OutProfile.width)
