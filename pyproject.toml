@@ -7,14 +7,14 @@ authors = [
 license = "BSD-3-Clause"
 requires-python = ">=3.9, <4.0"
 dependencies = [
-    "pyroll-core ~= 2.0b",
+    "pyroll-core ~= 2.0",
 ]
 
 dynamic = ["version"]
 
 [project.optional-dependencies]
 pillar-model = [
-    "pyroll-pillar-model ~= 2.0b",
+    "pyroll-pillar-model ~= 2.0",
 ]
 
 [build-system]

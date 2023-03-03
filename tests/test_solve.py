@@ -2,6 +2,7 @@ import logging
 import webbrowser
 from pathlib import Path
 
+import numpy as np
 import pyroll.core
 from pyroll.core import Profile, PassSequence, RollPass, Roll, CircularOvalGroove, Transport, RoundGroove
 
@@ -74,3 +75,6 @@ def test_solve(tmp_path: Path, caplog):
 
     except ImportError:
         pass
+
+    assert not np.isclose(sequence[0].out_profile.filling_ratio, 1)
+    assert not np.isclose(sequence[2].out_profile.filling_ratio, 1)

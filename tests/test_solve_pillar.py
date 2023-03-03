@@ -2,6 +2,7 @@ import logging
 import webbrowser
 from pathlib import Path
 
+import numpy as np
 import pyroll.core
 import pytest
 from pyroll.core import Profile, PassSequence, RollPass, Roll, CircularOvalGroove, Transport, RoundGroove
@@ -9,6 +10,7 @@ from pyroll.core import Profile, PassSequence, RollPass, Roll, CircularOvalGroov
 import pyroll.wusatowski_spreading
 
 DE_COUNT = 50
+
 
 @pytest.mark.skipif(not pyroll.wusatowski_spreading.PILLAR_MODEL_INSTALLED, reason="Pillar model is not installed.")
 def test_solve(tmp_path: Path, caplog):
@@ -80,3 +82,6 @@ def test_solve(tmp_path: Path, caplog):
 
     except ImportError:
         pass
+
+    assert not np.isclose(sequence[0].out_profile.filling_ratio, 1)
+    assert not np.isclose(sequence[2].out_profile.filling_ratio, 1)

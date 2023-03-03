@@ -1,9 +1,8 @@
 import importlib.util
 
-from pyroll.core import RollPass
-from pyroll.core.hooks import Hook
+from pyroll.core import RollPass, ThreeRollPass, Hook, root_hooks, Unit
 
-VERSION = "2.0.0b1"
+VERSION = "2.0.0"
 PILLAR_MODEL_INSTALLED = bool(importlib.util.find_spec("pyroll.pillar_model"))
 
 RollPass.wusatowski_temperature_coefficient = Hook[float]()
@@ -20,6 +19,8 @@ RollPass.wusatowski_friction_coefficient = Hook[float]()
 
 RollPass.wusatowski_exponent = Hook[float]()
 """Exponent w for Wusatowski's spread equation."""
+
+root_hooks.add(Unit.OutProfile.width)
 
 
 @RollPass.wusatowski_temperature_coefficient
@@ -66,32 +67,43 @@ def wusatowski_exponent_high_strain(self: RollPass):
         )
 
 
-# noinspection PyUnresolvedReferences
-@RollPass.spread
-def spread(self: RollPass):
-    if not (PILLAR_MODEL_INSTALLED and self.disk_elements):
-        return (
-                self.wusatowski_temperature_coefficient
-                * self.wusatowski_velocity_coefficient
-                * self.wusatowski_material_coefficient
-                * self.wusatowski_friction_coefficient
-                * self.draught ** (-self.wusatowski_exponent)
-        )
-
-
 @RollPass.OutProfile.width
 def width(self: RollPass.OutProfile):
     rp = self.roll_pass
 
     if not (PILLAR_MODEL_INSTALLED and rp.disk_elements):
         if not self.has_set_or_cached("width"):
-            self.width = rp.roll.groove.usable_width
+            return None
 
-        return rp.spread * rp.in_profile.width
+        return (
+                rp.wusatowski_temperature_coefficient
+                * rp.wusatowski_velocity_coefficient
+                * rp.wusatowski_material_coefficient
+                * rp.wusatowski_friction_coefficient
+                * rp.draught ** (-rp.wusatowski_exponent)
+        ) * rp.in_profile.width
+
+
+@ThreeRollPass.OutProfile.width
+def width(self: RollPass.OutProfile):
+    rp = self.roll_pass
+
+    if not (PILLAR_MODEL_INSTALLED and rp.disk_elements):
+        if not self.has_set_or_cached("width"):
+            return None
+
+        return (
+                rp.wusatowski_temperature_coefficient
+                * rp.wusatowski_velocity_coefficient
+                * rp.wusatowski_material_coefficient
+                * rp.wusatowski_friction_coefficient
+                * rp.draught ** (-rp.wusatowski_exponent)
+        ) * rp.in_profile.width
 
 
 if PILLAR_MODEL_INSTALLED:
     import pyroll.pillar_model
+
 
     # noinspection PyUnresolvedReferences
     @RollPass.DiskElement.pillar_spreads
