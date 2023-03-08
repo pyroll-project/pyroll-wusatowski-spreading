@@ -1,6 +1,7 @@
 import importlib.util
 
-from pyroll.core import RollPass, ThreeRollPass, Hook, root_hooks, Unit
+import numpy as np
+from pyroll.core import RollPass, ThreeRollPass, Hook
 
 VERSION = "2.0.0"
 PILLAR_MODEL_INSTALLED = bool(importlib.util.find_spec("pyroll.pillar_model"))
@@ -19,8 +20,6 @@ RollPass.wusatowski_friction_coefficient = Hook[float]()
 
 RollPass.wusatowski_exponent = Hook[float]()
 """Exponent w for Wusatowski's spread equation."""
-
-root_hooks.add(Unit.OutProfile.width)
 
 
 @RollPass.wusatowski_temperature_coefficient
@@ -67,12 +66,12 @@ def wusatowski_exponent_high_strain(self: RollPass):
         )
 
 
-@RollPass.OutProfile.width
-def width(self: RollPass.OutProfile):
+@RollPass.OutProfile.equivalent_width
+def equivalent_width(self: RollPass.OutProfile):
     rp = self.roll_pass
 
     if not (PILLAR_MODEL_INSTALLED and rp.disk_elements):
-        if not self.has_set_or_cached("width"):
+        if not self.has_set_or_cached("equivalent_width"):
             return None
 
         return (
@@ -81,15 +80,15 @@ def width(self: RollPass.OutProfile):
                 * rp.wusatowski_material_coefficient
                 * rp.wusatowski_friction_coefficient
                 * rp.draught ** (-rp.wusatowski_exponent)
-        ) * rp.in_profile.width
+        ) * rp.in_profile.equivalent_width
 
 
-@ThreeRollPass.OutProfile.width
-def width(self: RollPass.OutProfile):
+@ThreeRollPass.OutProfile.equivalent_width
+def equivalent_width(self: RollPass.OutProfile):
     rp = self.roll_pass
 
     if not (PILLAR_MODEL_INSTALLED and rp.disk_elements):
-        if not self.has_set_or_cached("width"):
+        if not self.has_set_or_cached("equivalent_width"):
             return None
 
         return (
@@ -98,7 +97,7 @@ def width(self: RollPass.OutProfile):
                 * rp.wusatowski_material_coefficient
                 * rp.wusatowski_friction_coefficient
                 * rp.draught ** (-rp.wusatowski_exponent)
-        ) * rp.in_profile.width
+        ) * rp.in_profile.equivalent_width
 
 
 if PILLAR_MODEL_INSTALLED:

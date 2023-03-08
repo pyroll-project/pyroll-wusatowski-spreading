@@ -40,7 +40,6 @@ def test_solve(tmp_path: Path, caplog):
                     ),
                     nominal_radius=160e-3,
                     rotational_frequency=1,
-                    contact_length=58e-3,
                 ),
                 gap=2e-3,
                 disk_element_count=DE_COUNT,
