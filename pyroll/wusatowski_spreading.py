@@ -1,7 +1,6 @@
 import importlib.util
 
-import numpy as np
-from pyroll.core import RollPass, ThreeRollPass, Hook
+from pyroll.core import RollPass, ThreeRollPass, Hook, root_hooks, Unit
 
 VERSION = "2.0.0"
 PILLAR_MODEL_INSTALLED = bool(importlib.util.find_spec("pyroll.pillar_model"))
@@ -45,8 +44,8 @@ def wusatowski_friction_coefficient(self: RollPass):
 @RollPass.wusatowski_exponent
 def wusatowski_exponent_low_strain(self: RollPass):
     if self.draught >= 0.5:
-        in_equivalent_height = self.in_profile.equivalent_rectangle.height
-        in_equivalent_width = self.in_profile.equivalent_rectangle.width
+        in_equivalent_height = self.in_profile.equivalent_height
+        in_equivalent_width = self.in_profile.equivalent_width
 
         return 10 ** (
                 -1.269 * (in_equivalent_height / (2 * self.roll.working_radius)) ** 0.556
@@ -57,8 +56,8 @@ def wusatowski_exponent_low_strain(self: RollPass):
 @RollPass.wusatowski_exponent
 def wusatowski_exponent_high_strain(self: RollPass):
     if self.draught < 0.5:
-        in_equivalent_height = self.in_profile.equivalent_rectangle.height
-        in_equivalent_width = self.in_profile.equivalent_rectangle.width
+        in_equivalent_height = self.in_profile.equivalent_height
+        in_equivalent_width = self.in_profile.equivalent_width
 
         return 10 ** (
                 -3.457 * (in_equivalent_height / (2 * self.roll.working_radius)) ** 0.968
@@ -66,12 +65,12 @@ def wusatowski_exponent_high_strain(self: RollPass):
         )
 
 
-@RollPass.OutProfile.equivalent_width
-def equivalent_width(self: RollPass.OutProfile):
+@RollPass.OutProfile.width
+def width(self: RollPass.OutProfile):
     rp = self.roll_pass
 
     if not (PILLAR_MODEL_INSTALLED and rp.disk_elements):
-        if not self.has_set_or_cached("equivalent_width"):
+        if not self.has_set_or_cached("width"):
             return None
 
         return (
@@ -80,15 +79,15 @@ def equivalent_width(self: RollPass.OutProfile):
                 * rp.wusatowski_material_coefficient
                 * rp.wusatowski_friction_coefficient
                 * rp.draught ** (-rp.wusatowski_exponent)
-        ) * rp.in_profile.equivalent_width
+        ) * rp.in_profile.width
 
 
-@ThreeRollPass.OutProfile.equivalent_width
-def equivalent_width(self: RollPass.OutProfile):
+@ThreeRollPass.OutProfile.width
+def width(self: RollPass.OutProfile):
     rp = self.roll_pass
 
     if not (PILLAR_MODEL_INSTALLED and rp.disk_elements):
-        if not self.has_set_or_cached("equivalent_width"):
+        if not self.has_set_or_cached("width"):
             return None
 
         return (
@@ -97,7 +96,7 @@ def equivalent_width(self: RollPass.OutProfile):
                 * rp.wusatowski_material_coefficient
                 * rp.wusatowski_friction_coefficient
                 * rp.draught ** (-rp.wusatowski_exponent)
-        ) * rp.in_profile.equivalent_width
+        ) * rp.in_profile.width
 
 
 if PILLAR_MODEL_INSTALLED:
