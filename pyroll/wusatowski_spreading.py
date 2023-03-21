@@ -1,9 +1,9 @@
-import importlib.util
+import logging
 
-from pyroll.core import RollPass, ThreeRollPass, Hook, root_hooks, Unit
+from pyroll.core import RollPass, ThreeRollPass, Hook
 
 VERSION = "2.0.0"
-PILLAR_MODEL_INSTALLED = bool(importlib.util.find_spec("pyroll.pillar_model"))
+PILLAR_MODEL_LOADED = False
 
 RollPass.wusatowski_temperature_coefficient = Hook[float]()
 """Temperature correction factor a for Wusatowski's spread equation."""
@@ -69,40 +69,37 @@ def wusatowski_exponent_high_strain(self: RollPass):
 def width(self: RollPass.OutProfile):
     rp = self.roll_pass
 
-    if not (PILLAR_MODEL_INSTALLED and rp.disk_elements):
+    if not (PILLAR_MODEL_LOADED and rp.disk_elements):
         if not self.has_set_or_cached("width"):
             return None
 
         return (
-                rp.wusatowski_temperature_coefficient
-                * rp.wusatowski_velocity_coefficient
-                * rp.wusatowski_material_coefficient
-                * rp.wusatowski_friction_coefficient
-                * rp.draught ** (-rp.wusatowski_exponent)
-        ) * rp.in_profile.width
+                       rp.wusatowski_temperature_coefficient
+                       * rp.wusatowski_velocity_coefficient
+                       * rp.wusatowski_material_coefficient
+                       * rp.wusatowski_friction_coefficient
+                       * rp.draught ** (-rp.wusatowski_exponent)
+               ) * rp.in_profile.width
 
 
 @ThreeRollPass.OutProfile.width
 def width(self: RollPass.OutProfile):
     rp = self.roll_pass
 
-    if not (PILLAR_MODEL_INSTALLED and rp.disk_elements):
+    if not (PILLAR_MODEL_LOADED and rp.disk_elements):
         if not self.has_set_or_cached("width"):
             return None
 
         return (
-                rp.wusatowski_temperature_coefficient
-                * rp.wusatowski_velocity_coefficient
-                * rp.wusatowski_material_coefficient
-                * rp.wusatowski_friction_coefficient
-                * rp.draught ** (-rp.wusatowski_exponent)
-        ) * rp.in_profile.width
+                       rp.wusatowski_temperature_coefficient
+                       * rp.wusatowski_velocity_coefficient
+                       * rp.wusatowski_material_coefficient
+                       * rp.wusatowski_friction_coefficient
+                       * rp.draught ** (-rp.wusatowski_exponent)
+               ) * rp.in_profile.width
 
 
-if PILLAR_MODEL_INSTALLED:
-    import pyroll.pillar_model
-
-
+try:
     # noinspection PyUnresolvedReferences
     @RollPass.DiskElement.pillar_spreads
     def pillar_spreads(self: RollPass.DiskElement):
@@ -114,3 +111,9 @@ if PILLAR_MODEL_INSTALLED:
                 * rp.wusatowski_friction_coefficient
                 * self.pillar_draughts ** (-rp.wusatowski_exponent)
         )
+
+
+    PILLAR_MODEL_LOADED = True
+
+except AttributeError:
+    logging.getLogger(__name__).debug("Pillar model not loaded. Can not register respective hook function.")

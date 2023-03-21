@@ -1,3 +1,4 @@
+import importlib
 import logging
 import webbrowser
 from pathlib import Path
@@ -11,11 +12,20 @@ import pyroll.wusatowski_spreading
 
 DE_COUNT = 50
 
+try:
+    import pyroll.pillar_model
 
-@pytest.mark.skipif(not pyroll.wusatowski_spreading.PILLAR_MODEL_INSTALLED, reason="Pillar model is not installed.")
+    importlib.reload(pyroll.wusatowski_spreading)
+
+    PILLAR_MODEL_INSTALLED = True
+
+except ImportError:
+    PILLAR_MODEL_INSTALLED = False
+
+
+@pytest.mark.skipif(not PILLAR_MODEL_INSTALLED, reason="Pillar model is not installed.")
 def test_solve(tmp_path: Path, caplog):
     caplog.set_level(logging.INFO, logger="pyroll")
-    pyroll.pillar_model.PILLAR_COUNT = 30
 
     in_profile = Profile.square(
         side=24e-3,
