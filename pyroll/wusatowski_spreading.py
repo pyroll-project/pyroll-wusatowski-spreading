@@ -2,7 +2,7 @@ import logging
 
 from pyroll.core import RollPass, ThreeRollPass, Hook
 
-VERSION = "2.0.0"
+VERSION = "2.0.1"
 PILLAR_MODEL_LOADED = False
 
 RollPass.wusatowski_temperature_coefficient = Hook[float]()
