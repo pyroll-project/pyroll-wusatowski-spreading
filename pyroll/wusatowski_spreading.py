@@ -1,48 +1,48 @@
 import logging
 
-from pyroll.core import RollPass, ThreeRollPass, Hook
+from pyroll.core import BaseRollPass, RollPass, ThreeRollPass, Hook
 
-VERSION = "2.0.1"
+VERSION = "2.0.2"
 PILLAR_MODEL_LOADED = False
 
-RollPass.wusatowski_temperature_coefficient = Hook[float]()
+BaseRollPass.wusatowski_temperature_coefficient = Hook[float]()
 """Temperature correction factor a for Wusatowski's spread equation."""
 
-RollPass.wusatowski_velocity_coefficient = Hook[float]()
+BaseRollPass.wusatowski_velocity_coefficient = Hook[float]()
 """Velocity correction factor c for Wusatowski's spread equation."""
 
-RollPass.wusatowski_material_coefficient = Hook[float]()
+BaseRollPass.wusatowski_material_coefficient = Hook[float]()
 """Material correction factor d for Wusatowski's spread equation."""
 
-RollPass.wusatowski_friction_coefficient = Hook[float]()
+BaseRollPass.wusatowski_friction_coefficient = Hook[float]()
 """Friction correction factor f for Wusatowski's spread equation."""
 
-RollPass.wusatowski_exponent = Hook[float]()
+BaseRollPass.wusatowski_exponent = Hook[float]()
 """Exponent w for Wusatowski's spread equation."""
 
 
-@RollPass.wusatowski_temperature_coefficient
-def wusatowski_temperature_coefficient(self: RollPass):
+@BaseRollPass.wusatowski_temperature_coefficient
+def wusatowski_temperature_coefficient(self: BaseRollPass):
     return 1
 
 
-@RollPass.wusatowski_velocity_coefficient
-def wusatowski_velocity_coefficient(self: RollPass):
+@BaseRollPass.wusatowski_velocity_coefficient
+def wusatowski_velocity_coefficient(self: BaseRollPass):
     return (-0.002958 + 0.00341 * self.draught) * self.velocity + 1.07168 - 0.10431 * self.draught
 
 
-@RollPass.wusatowski_material_coefficient
-def wusatowski_material_coefficient(self: RollPass):
+@BaseRollPass.wusatowski_material_coefficient
+def wusatowski_material_coefficient(self: BaseRollPass):
     return 1
 
 
-@RollPass.wusatowski_friction_coefficient
-def wusatowski_friction_coefficient(self: RollPass):
+@BaseRollPass.wusatowski_friction_coefficient
+def wusatowski_friction_coefficient(self: BaseRollPass):
     return 1
 
 
-@RollPass.wusatowski_exponent
-def wusatowski_exponent_low_strain(self: RollPass):
+@BaseRollPass.wusatowski_exponent
+def wusatowski_exponent_low_strain(self: BaseRollPass):
     if self.draught >= 0.5:
         in_equivalent_height = self.in_profile.equivalent_height
         in_equivalent_width = self.in_profile.equivalent_width
@@ -53,8 +53,8 @@ def wusatowski_exponent_low_strain(self: RollPass):
         )
 
 
-@RollPass.wusatowski_exponent
-def wusatowski_exponent_high_strain(self: RollPass):
+@BaseRollPass.wusatowski_exponent
+def wusatowski_exponent_high_strain(self: BaseRollPass):
     if self.draught < 0.5:
         in_equivalent_height = self.in_profile.equivalent_height
         in_equivalent_width = self.in_profile.equivalent_width
@@ -65,8 +65,8 @@ def wusatowski_exponent_high_strain(self: RollPass):
         )
 
 
-@RollPass.OutProfile.width
-def width(self: RollPass.OutProfile):
+@BaseRollPass.OutProfile.width
+def width(self: BaseRollPass.OutProfile):
     rp = self.roll_pass
 
     if not (PILLAR_MODEL_LOADED and rp.disk_elements):
@@ -74,29 +74,12 @@ def width(self: RollPass.OutProfile):
             return None
 
         return (
-                       rp.wusatowski_temperature_coefficient
-                       * rp.wusatowski_velocity_coefficient
-                       * rp.wusatowski_material_coefficient
-                       * rp.wusatowski_friction_coefficient
-                       * rp.draught ** (-rp.wusatowski_exponent)
-               ) * rp.in_profile.width
-
-
-@ThreeRollPass.OutProfile.width
-def width(self: RollPass.OutProfile):
-    rp = self.roll_pass
-
-    if not (PILLAR_MODEL_LOADED and rp.disk_elements):
-        if not self.has_set_or_cached("width"):
-            return None
-
-        return (
-                       rp.wusatowski_temperature_coefficient
-                       * rp.wusatowski_velocity_coefficient
-                       * rp.wusatowski_material_coefficient
-                       * rp.wusatowski_friction_coefficient
-                       * rp.draught ** (-rp.wusatowski_exponent)
-               ) * rp.in_profile.width
+                rp.wusatowski_temperature_coefficient
+                * rp.wusatowski_velocity_coefficient
+                * rp.wusatowski_material_coefficient
+                * rp.wusatowski_friction_coefficient
+                * rp.draught ** (-rp.wusatowski_exponent)
+        ) * rp.in_profile.width
 
 
 try:

@@ -6,11 +6,11 @@ import numpy as np
 import pyroll.core
 from pyroll.core import Profile, PassSequence, RollPass, Roll, CircularOvalGroove, Transport, RoundGroove
 
-import pyroll.wusatowski_spreading
-
 
 def test_solve(tmp_path: Path, caplog):
     caplog.set_level(logging.INFO, logger="pyroll")
+
+    import pyroll.wusatowski_spreading
 
     in_profile = Profile.square(
         side=24e-3,
