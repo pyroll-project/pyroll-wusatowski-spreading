@@ -1,48 +1,48 @@
 import logging
 
-from pyroll.core import BaseRollPass, RollPass, ThreeRollPass, Hook
+from pyroll.core import SymmetricRollPass, RollPass, ThreeRollPass, Hook
 
 VERSION = "3.0.0"
 PILLAR_MODEL_LOADED = False
 
-BaseRollPass.wusatowski_temperature_coefficient = Hook[float]()
+SymmetricRollPass.wusatowski_temperature_coefficient = Hook[float]()
 """Temperature correction factor a for Wusatowski's spread equation."""
 
-BaseRollPass.wusatowski_velocity_coefficient = Hook[float]()
+SymmetricRollPass.wusatowski_velocity_coefficient = Hook[float]()
 """Velocity correction factor c for Wusatowski's spread equation."""
 
-BaseRollPass.wusatowski_material_coefficient = Hook[float]()
+SymmetricRollPass.wusatowski_material_coefficient = Hook[float]()
 """Material correction factor d for Wusatowski's spread equation."""
 
-BaseRollPass.wusatowski_friction_coefficient = Hook[float]()
+SymmetricRollPass.wusatowski_friction_coefficient = Hook[float]()
 """Friction correction factor f for Wusatowski's spread equation."""
 
-BaseRollPass.wusatowski_exponent = Hook[float]()
+SymmetricRollPass.wusatowski_exponent = Hook[float]()
 """Exponent w for Wusatowski's spread equation."""
 
 
-@BaseRollPass.wusatowski_temperature_coefficient
-def wusatowski_temperature_coefficient(self: BaseRollPass):
+@SymmetricRollPass.wusatowski_temperature_coefficient
+def wusatowski_temperature_coefficient(self: SymmetricRollPass):
     return 1
 
 
-@BaseRollPass.wusatowski_velocity_coefficient
-def wusatowski_velocity_coefficient(self: BaseRollPass):
+@SymmetricRollPass.wusatowski_velocity_coefficient
+def wusatowski_velocity_coefficient(self: SymmetricRollPass):
     return (-0.002958 + 0.00341 * self.draught) * self.velocity + 1.07168 - 0.10431 * self.draught
 
 
-@BaseRollPass.wusatowski_material_coefficient
-def wusatowski_material_coefficient(self: BaseRollPass):
+@SymmetricRollPass.wusatowski_material_coefficient
+def wusatowski_material_coefficient(self: SymmetricRollPass):
     return 1
 
 
-@BaseRollPass.wusatowski_friction_coefficient
-def wusatowski_friction_coefficient(self: BaseRollPass):
+@SymmetricRollPass.wusatowski_friction_coefficient
+def wusatowski_friction_coefficient(self: SymmetricRollPass):
     return 1
 
 
-@BaseRollPass.wusatowski_exponent
-def wusatowski_exponent_low_strain(self: BaseRollPass):
+@SymmetricRollPass.wusatowski_exponent
+def wusatowski_exponent_low_strain(self: SymmetricRollPass):
     if self.draught >= 0.5:
         in_equivalent_height = self.in_profile.equivalent_height
         in_equivalent_width = self.in_profile.equivalent_width
@@ -53,8 +53,8 @@ def wusatowski_exponent_low_strain(self: BaseRollPass):
         )
 
 
-@BaseRollPass.wusatowski_exponent
-def wusatowski_exponent_high_strain(self: BaseRollPass):
+@SymmetricRollPass.wusatowski_exponent
+def wusatowski_exponent_high_strain(self: SymmetricRollPass):
     if self.draught < 0.5:
         in_equivalent_height = self.in_profile.equivalent_height
         in_equivalent_width = self.in_profile.equivalent_width
@@ -65,8 +65,8 @@ def wusatowski_exponent_high_strain(self: BaseRollPass):
         )
 
 
-@BaseRollPass.OutProfile.width
-def width(self: BaseRollPass.OutProfile):
+@SymmetricRollPass.OutProfile.width
+def width(self: SymmetricRollPass.OutProfile):
     rp = self.roll_pass
 
     if not (PILLAR_MODEL_LOADED and rp.disk_elements):
